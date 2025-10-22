@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
-// Import các hàm Firestore nếu cần (giả lập)
-// import 'package:cloud_firestore/cloud_firestore.dart';
+// --- ENUM VAI TRÒ NGƯỜI DÙNG ---
+enum UserRole {
+  admin, // Quản lý, có quyền CRUD (Create, Read, Update, Delete)
+  student, // Sinh viên, chỉ có quyền đọc (view) Sự kiện
+}
 
 // --- 1. MÔ HÌNH DỮ LIỆU TIN TỨC/SỰ KIỆN ---
 
@@ -22,9 +25,6 @@ class NewsEvent {
     required this.isNews,
     required this.category,
   });
-
-  // Tạo một ID giả lập mới (UUID)
-  String get newId => DateTime.now().millisecondsSinceEpoch.toString();
 
   // Chuyển đổi từ Object sang Map cho Firestore (giả lập)
   Map<String, dynamic> toMap() {
@@ -59,40 +59,43 @@ List<NewsEvent> mockNewsEvents = [
     title: 'Thông báo lịch thi cuối kỳ mùa thu 2024',
     content: 'Chi tiết lịch thi đã được cập nhật trên cổng thông tin sinh viên.',
     date: DateTime.now().subtract(const Duration(days: 3)),
-    isNews: true,
+    isNews: true, // Tin tức
     category: 'Thông báo',
   ),
   NewsEvent(
     id: '2',
     title: 'Hội thảo "Công nghệ AI trong Giáo dục"',
-    content: 'Tham gia hội thảo để tìm hiểu về các công cụ AI mới.',
+    content: 'Tham gia hội thảo để tìm hiểu về các công cụ AI mới. Diễn giả: GS. Nguyễn Văn A. Địa điểm: Phòng Lab A101.',
     date: DateTime.now().add(const Duration(days: 7)),
-    isNews: false,
+    isNews: false, // Sự kiện
     category: 'Học tập',
   ),
   NewsEvent(
     id: '3',
     title: 'Cuộc thi lập trình ACM/ICPC cấp trường',
-    content: 'Đăng ký ngay để thử thách khả năng lập trình của bạn.',
+    content: 'Đăng ký ngay để thử thách khả năng lập trình của bạn. Địa điểm: Phòng Lab B201.',
     date: DateTime.now().subtract(const Duration(days: 10)),
-    isNews: false,
+    isNews: false, // Sự kiện
     category: 'Hoạt động',
   ),
 ];
 
-// --- 3. MÀN HÌNH QUẢN LÝ TIN TỨC & SỰ KIỆN ---
+// --- 3. MÀN HÌNH CHÍNH (QUẢN LÝ HOẶC XEM) ---
 
 class NewsEventScreen extends StatefulWidget {
-  const NewsEventScreen({super.key});
+  // THAM SỐ NÀY BẮT BUỘC (required)
+  final UserRole role; 
+  const NewsEventScreen({super.key, required this.role});
 
   @override
   State<NewsEventScreen> createState() => _NewsEventScreenState();
 }
 
 class _NewsEventScreenState extends State<NewsEventScreen> {
+  // Sử dụng dữ liệu giả lập
   List<NewsEvent> _events = mockNewsEvents;
 
-  // Giả lập việc thêm/sửa/xóa sự kiện
+  // Giả lập việc thêm/sửa/xóa sự kiện (chỉ dành cho Admin)
   void _addEvent(NewsEvent event) {
     setState(() {
       _events.add(event);
@@ -116,8 +119,11 @@ class _NewsEventScreenState extends State<NewsEventScreen> {
     });
   }
 
-  // Hiển thị modal thêm/sửa
+  // Hiển thị modal thêm/sửa (chỉ dành cho Admin)
   void _showFormModal({NewsEvent? event}) {
+    // Chỉ Admin mới được phép
+    if (widget.role != UserRole.admin) return;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -145,25 +151,57 @@ class _NewsEventScreenState extends State<NewsEventScreen> {
     );
   }
 
+  // Lọc danh sách theo vai trò
+  List<NewsEvent> _getFilteredEvents() {
+    if (widget.role == UserRole.admin) {
+      return _events; // Admin thấy tất cả
+    } else {
+      // Student chỉ thấy Sự kiện (isNews = false)
+      return _events.where((e) => !e.isNews).toList();
+    }
+  }
+
+  // Xử lý khi nhấn vào item
+  void _handleItemTap(NewsEvent event) {
+    if (widget.role == UserRole.admin) {
+      // Admin: mở form chỉnh sửa
+      _showFormModal(event: event);
+    } else {
+      // Student: mở màn hình chi tiết
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EventDetailScreen(event: event),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final filteredEvents = _getFilteredEvents();
+    final isAdmin = widget.role == UserRole.admin;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quản Lý Tin Tức & Sự Kiện'),
+        title: Text(isAdmin ? 'Quản Lý Tin Tức & Sự Kiện' : 'Sự Kiện & Hội Thảo'),
         elevation: 1,
+        backgroundColor: isAdmin ? Colors.teal : Colors.indigo,
       ),
-      body: _events.isEmpty
-          ? const Center(
+      body: filteredEvents.isEmpty
+          ? Center(
               child: Text(
-                'Chưa có tin tức/sự kiện nào được tạo.',
-                style: TextStyle(color: Colors.grey),
+                isAdmin
+                    ? 'Chưa có tin tức/sự kiện nào được tạo.'
+                    : 'Hiện chưa có sự kiện nào.',
+                style: const TextStyle(color: Colors.grey, fontSize: 16),
               ),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(12),
-              itemCount: _events.length,
+              itemCount: filteredEvents.length,
               itemBuilder: (context, index) {
-                final event = _events[index];
+                final event = filteredEvents[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   elevation: 3,
@@ -175,6 +213,7 @@ class _NewsEventScreenState extends State<NewsEventScreen> {
                     ),
                   ),
                   child: ListTile(
+                    onTap: () => _handleItemTap(event), // Xử lý onTap tùy theo vai trò
                     contentPadding: const EdgeInsets.all(12),
                     leading: CircleAvatar(
                       backgroundColor: event.isNews ? Colors.blue : Colors.orange,
@@ -193,12 +232,12 @@ class _NewsEventScreenState extends State<NewsEventScreen> {
                         const SizedBox(height: 4),
                         Text(
                           event.content,
-                          maxLines: 2,
+                          maxLines: isAdmin ? 2 : 1, // Student chỉ cần xem tóm tắt
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Loại: ${event.isNews ? "Tin tức" : "Sự kiện"} | Danh mục: ${event.category}',
+                          'Danh mục: ${event.category}',
                           style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                         ),
                         Text(
@@ -207,39 +246,43 @@ class _NewsEventScreenState extends State<NewsEventScreen> {
                         ),
                       ],
                     ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.indigo),
-                          onPressed: () => _showFormModal(event: event),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            _deleteEvent(event.id);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Đã xóa sự kiện/tin tức.')),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                    trailing: isAdmin
+                        ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.indigo),
+                                  onPressed: () => _showFormModal(event: event),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () {
+                                    _deleteEvent(event.id);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Đã xóa sự kiện/tin tức.')),
+                                    );
+                                  },
+                                ),
+                              ],
+                            )
+                        : const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey), // Student chỉ có icon xem
                   ),
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showFormModal(),
-        label: const Text('Thêm Mới'),
-        icon: const Icon(Icons.add),
-        backgroundColor: Colors.teal,
-      ),
+      floatingActionButton: isAdmin
+          ? FloatingActionButton.extended(
+              onPressed: () => _showFormModal(),
+              label: const Text('Thêm Mới'),
+              icon: const Icon(Icons.add),
+              backgroundColor: Colors.teal,
+            )
+          : null, // Sinh viên không có nút thêm
     );
   }
 }
 
-// --- 4. FORM THÊM/SỬA TIN TỨC/SỰ KIỆN ---
+// --- 4. FORM THÊM/SỬA TIN TỨC/SỰ KIỆN (Chỉ Admin dùng) ---
 
 class NewsEventForm extends StatefulWidget {
   final NewsEvent? event;
@@ -259,7 +302,7 @@ class _NewsEventFormState extends State<NewsEventForm> {
   late bool _isNews;
   late String _category;
 
-  final List<String> _categories = [
+  final List<String> _categories = const [
     "Thông báo",
     "Học tập",
     "Hoạt động",
@@ -299,10 +342,13 @@ class _NewsEventFormState extends State<NewsEventForm> {
 
       final isEditing = widget.event != null;
       
-      // *** ĐIỀM CHÍNH ĐÃ SỬA LỖI: CUNG CẤP title KHI TẠO ĐỐI TƯỢNG TẠM ***
+      // Tạo ID mới nếu là thêm mới, hoặc giữ ID cũ nếu là chỉnh sửa
+      final String id = isEditing
+          ? widget.event!.id
+          : DateTime.now().millisecondsSinceEpoch.toString();
+
       final newEvent = NewsEvent(
-        // Nếu là sửa, dùng ID cũ. Nếu là thêm mới, tạo ID mới.
-        id: isEditing ? widget.event!.id : NewsEvent(id: '', title: 'temp', content: '', date: DateTime.now(), isNews: true, category: '').newId,
+        id: id,
         title: _title,
         content: _content,
         date: _date,
@@ -469,4 +515,164 @@ class _NewsEventFormState extends State<NewsEventForm> {
       ),
     );
   }
+}
+
+// --- 5. MÀN HÌNH CHI TIẾT SỰ KIỆN (Dành cho Sinh viên) ---
+
+class EventDetailScreen extends StatelessWidget {
+  final NewsEvent event;
+  const EventDetailScreen({super.key, required this.event});
+
+  // Hàm giả lập thêm vào lịch
+  void _addToCalendar(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Đã giả lập thêm sự kiện "${event.title}" vào lịch của bạn!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+    // Trong ứng dụng thực tế: sử dụng package `add_2_calendar` hoặc `url_launcher`
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Chi Tiết Sự Kiện'),
+        backgroundColor: Colors.orange,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              event.title,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.indigo,
+                  ),
+            ),
+            const Divider(height: 25),
+
+            _buildDetailRow(
+              context,
+              icon: Icons.calendar_today,
+              label: 'Thời gian',
+              value: '${event.date.day}/${event.date.month}/${event.date.year}',
+            ),
+            _buildDetailRow(
+              context,
+              icon: Icons.category,
+              label: 'Danh mục',
+              value: event.category,
+            ),
+            _buildDetailRow(
+              context,
+              icon: Icons.location_on,
+              label: 'Nơi tổ chức',
+              // Giả lập tìm kiếm nơi tổ chức trong nội dung
+              value: event.content.contains('Địa điểm:') 
+                ? event.content.split('Địa điểm:')[1].split('.')[0].trim()
+                : 'Xem chi tiết bên dưới',
+            ),
+            const SizedBox(height: 20),
+            
+            Text(
+              'Mô tả chi tiết:',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Text(
+                event.content,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            // Nút "Thêm vào lịch"
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: () => _addToCalendar(context),
+                icon: const Icon(Icons.add_alert_rounded),
+                label: const Text('Thêm vào Lịch & Nhận Nhắc Nhở'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade700,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(BuildContext context, {required IconData icon, required String label, required String value}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.orange.shade700, size: 24),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- WIDGET KHỞI CHẠY ỨNG DỤNG ---
+class MyApp extends StatelessWidget {
+  // Thay đổi quyền hạn tại đây để kiểm tra
+  // Hiện đang đặt là Student (Sinh viên)
+  final UserRole initialRole = UserRole.student; // <<< THAY ĐỔI ĐỂ KIỂM TRA QUYỀN
+
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Quản Lý Tin Tức & Sự Kiện',
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        useMaterial3: true,
+      ),
+      // Truyền tham số role vào màn hình chính
+      home: NewsEventScreen(role: initialRole), 
+    );
+  }
+}
+
+void main() {
+  runApp(const MyApp());
 }

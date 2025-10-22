@@ -128,10 +128,10 @@ class StatCard extends StatelessWidget {
   }
 }
 
-// --- CLASS HOMEPAGESCREEN CHÍNH ---
+// --- CLASS ADMINHOMESCREEN CHÍNH ---
 
-class HomePageScreen extends StatelessWidget {
-  const HomePageScreen({super.key});
+class AdminHomeScreen extends StatelessWidget {
+  const AdminHomeScreen({super.key});
 
   // Widget để tạo một nút chức năng đơn giản
   Widget _buildFeatureCard(
@@ -200,7 +200,7 @@ class HomePageScreen extends StatelessWidget {
     void _navigateToNewsEventManagement() {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const NewsEventScreen()),
+        MaterialPageRoute(builder: (context) => const NewsEventScreen(role: UserRole.admin)), 
       );
     }
 

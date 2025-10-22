@@ -1,10 +1,11 @@
+# --- PHẦN BẮT BUỘC: KHAI BÁO THƯ VIỆN & CẤU HÌNH ICON ---
 name: test_flutter
 description: "A new Flutter project."
 publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.9.2
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -14,6 +15,26 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  
+  # 1. Khai báo thư viện Launcher Icons
+  flutter_launcher_icons: "^0.13.1" 
 
+# --- 2. KHỐI CẤU HÌNH LOGO ỨNG DỤNG ---
+# Đảm bảo bạn sử dụng tên file chính xác cho logo của mình.
+flutter_launcher_icons:
+  android: "launcher_icon" # Tên file Android sẽ tạo ra
+  ios: true # Áp dụng cho iOS
+  image_path: "assets/launcher/app_logo.png" # <<< ĐƯỜNG DẪN ĐẾN FILE LOGO GỐC (512x512)
+  # (Tùy chọn) Nếu muốn nền trong suốt cho Android (Android 12+)
+  # adaptive_icon_background: "#FFFFFF" 
+  # adaptive_icon_foreground: "assets/launcher/app_logo.png" # Nếu dùng adaptive, logo này phải không có nền
+
+# --- 3. KHỐI KHAI BÁO TÀI SẢN (ASSETS) ---
 flutter:
   uses-material-design: true
+  
+  assets:
+    # Cho logo trong giao diện
+    - assets/launcher/app_logo.png 
+    # Cho logo ứng dụng (Launcher Icon)
+    - assets/launcher/app_logo.png 

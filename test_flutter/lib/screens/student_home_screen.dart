@@ -1,7 +1,102 @@
 import 'package:flutter/material.dart';
+// Import màn hình NewsEventScreen
+import 'news_event_management.dart';
+// >>> 1. IMPORT MÀN HÌNH LỘ TRÌNH HỌC TẬP <<<
+import 'learning_path_screen.dart'; 
+import 'e_portfolio_screen.dart';
+
+class AcademicResultsScreen extends StatelessWidget {
+  const AcademicResultsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Kết quả Học tập', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.green, // Màu xanh lá cho Kết quả học tập
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.grade, size: 80, color: Colors.green),
+            const SizedBox(height: 16),
+            const Text(
+              'Bảng điểm & Kết quả học tập',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Hiển thị chi tiết điểm số, GPA và tiến trình học tập của học viên.',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              label: const Text('Quay lại Dashboard', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+// -------------------------------------------------------------------
+class TestExaminationScreen extends StatelessWidget {
+  const TestExaminationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Bài thi & Kiểm tra', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.redAccent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.assessment, size: 80, color: Colors.redAccent),
+            const SizedBox(height: 16),
+            const Text(
+              'Danh sách Bài thi và Bài kiểm tra',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Đây là nơi học viên có thể làm bài kiểm tra và xem kết quả.',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              label: const Text('Quay lại Dashboard', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 // -------------------------------------------------------------------
-// --- WIDGET MỚI: MÀN HÌNH XEM BÀI HỌC/BÀI TẬP (Lesson View) ---
+// --- WIDGET CŨ: MÀN HÌNH XEM BÀI HỌC/BÀI TẬP (Lesson View) ---
 // -------------------------------------------------------------------
 class LessonViewScreen extends StatelessWidget {
   final String lessonTitle;
@@ -60,7 +155,7 @@ class LessonViewScreen extends StatelessWidget {
 }
 
 // -------------------------------------------------------------------
-// --- WIDGET PLACEHOLDER CHO MÀN HÌNH MỚI (Danh mục Khóa học) ---
+// --- WIDGET CŨ: MÀN HÌNH DANH MỤC KHÓA HỌC (Course Catalog) ---
 // -------------------------------------------------------------------
 class CourseCatalogScreen extends StatelessWidget {
   const CourseCatalogScreen({super.key});
@@ -92,8 +187,8 @@ class CourseCatalogScreen extends StatelessWidget {
             const SizedBox(height: 32),
             ElevatedButton.icon(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back),
-              label: const Text('Quay lại Dashboard'),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              label: const Text('Quay lại Dashboard', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo,
                 foregroundColor: Colors.white,
@@ -396,16 +491,24 @@ class StudentHomeScreen extends StatelessWidget {
     'An toàn Thông tin',
   ];
   
-  // DỮ LIỆU CẬP NHẬT: Thêm nút "Khóa học của tôi" và đổi tên "Khóa học" thành "Danh mục KH"
+  // DỮ LIỆU CẬP NHẬT: Thêm điều hướng cho "Xem Điểm"
   final List<Map<String, dynamic>> quickActions = const [
-    {'label': 'Danh mục KH', 'icon': Icons.search, 'color': Colors.indigo, 'screen': CourseCatalogScreen()},
-    {'label': 'Khóa học của tôi', 'icon': Icons.my_library_books, 'color': Colors.deepPurple, 'screen': MyCoursesScreen()}, // Nút MỚI
+    {'label': 'Tìm kiếm', 'icon': Icons.search, 'color': Colors.indigo, 'screen': CourseCatalogScreen()},
+    {'label': 'Khóa học của tôi', 'icon': Icons.my_library_books, 'color': Colors.deepPurple, 'screen': MyCoursesScreen()},
     {'label': 'Thời khóa biểu', 'icon': Icons.calendar_today, 'color': Colors.orange},
-    {'label': 'Xem Điểm', 'icon': Icons.bar_chart, 'color': Colors.green},
-    {'label': 'Học Phí', 'icon': Icons.payment, 'color': Colors.redAccent},
-    {'label': 'Tài liệu', 'icon': Icons.library_books, 'color': Colors.blueGrey},
-    {'label': 'Hỗ trợ', 'icon': Icons.help_outline, 'color': Colors.purple},
-    // {'label': 'Cài đặt', 'icon': Icons.settings, 'color': Colors.teal}, // Giảm bớt 1 nút để lưới gọn hơn
+    {'label': 'Bài thi', 'icon': Icons.assessment, 'color': Colors.redAccent, 'screen': TestExaminationScreen()}, 
+    // --- ĐÃ CẬP NHẬT: Thêm AcademicResultsScreen cho nút Xem Điểm ---
+    {'label': 'Xem Điểm', 'icon': Icons.grade, 'color': Colors.green, 'screen': AcademicResultsScreen()}, 
+    // -----------------------------------------------------------
+// --- ĐÃ CẬP NHẬT: Thêm NewsEventScreen với role student cho nút Tin tức & Sự kiện ---
+    {'label': 'Tin tức & Sự kiện', 'icon': Icons.campaign, 'color': Colors.deepOrange, 'screen': NewsEventScreen(role: UserRole.student)}, 
+    // -----------------------------------------------------------
+// --- ĐÃ CẬP NHẬT: Thêm NewsEventScreen với role student cho nút Tin tức & Sự kiện ---
+    {'label': 'Học Phí', 'icon': Icons.payment, 'color': Colors.pink}, // Đổi màu
+    // {'label': 'Tài liệu', 'icon': Icons.library_books, 'color': Colors.blueGrey},
+    // {'label': 'Hỗ trợ', 'icon': Icons.help_outline, 'color': Colors.purple},
+    {'label': 'Lộ trình học tập', 'icon': Icons.timeline, 'color': Colors.blue, 'screen': LearningPathScreen()},
+    {'label': 'Hồ sơ học tập số', 'icon': Icons.account_circle, 'color': Colors.teal, 'screen': EPortfolioScreen()},
   ];
   // --- KẾT THÚC DỮ LIỆU GIẢ ĐỊNH ---
 
@@ -419,11 +522,11 @@ class StudentHomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.white),
-            onPressed: () {},
+            onPressed: () { },
           ),
           IconButton(
             icon: const Icon(Icons.person_outline, color: Colors.white),
-            onPressed: () {},
+            onPressed: () { },
           ),
         ],
       ),
@@ -665,7 +768,7 @@ class StudentHomeScreen extends StatelessWidget {
     );
   }
 
-  // Widget phụ: Nút hành động nhanh (CẬP NHẬT để xử lý điều hướng)
+  // Widget phụ: Nút hành động nhanh (CẬP NHẬT)
   Widget _buildActionButton(BuildContext context, IconData icon, String label, Color color, [Widget? destinationScreen]) {
     return InkWell(
       onTap: () {
@@ -752,7 +855,6 @@ class StudentHomeScreen extends StatelessWidget {
   }
 
   // Widget 6: Lớp học sắp tới (Existing)
-  // FIX: Thêm BuildContext context vào tham số
   Widget _buildNextClassCard(BuildContext context) {
     return Card(
       elevation: 4,
@@ -770,8 +872,7 @@ class StudentHomeScreen extends StatelessWidget {
         ),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () {
-            // FIX LỖI: Thay null bằng context
-           Navigator.push(
+            Navigator.push(
               context, 
               MaterialPageRoute(
                 builder: (context) => LessonViewScreen(lessonTitle: nextClass),
@@ -842,17 +943,96 @@ class StudentHomeScreen extends StatelessWidget {
     );
   }
 }
+// import 'package:flutter/material.dart';
 
-// // Hàm main để chạy ứng dụng (chỉ để minh họa)
-// void main() {
-//   runApp(const MaterialApp(
-//     title: 'Student App',
-//     theme: ThemeData(
-//       primarySwatch: Colors.blue,
-//       useMaterial3: true,
-//       colorScheme: ColorScheme.light(primary: Colors.blueAccent),
-//     ),
-//     // FIX LỖI: Thêm const vào StudentHomeScreen()
-//     home: const StudentHomeScreen(), 
-//   ));
-// }
+class LearningPathScreen extends StatelessWidget {
+  const LearningPathScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Lộ Trình Học Tập'),
+        backgroundColor: Colors.blue.shade700,
+        foregroundColor: Colors.white,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.timeline,
+                size: 80,
+                color: Colors.blue.shade400,
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Bạn đã điều hướng thành công đến LearningPathScreen!',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Đây là nơi hiển thị toàn bộ lộ trình học tập chi tiết của sinh viên.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class EPortfolioScreen extends StatelessWidget {
+  const EPortfolioScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Đảm bảo tất cả các widget con đều là const
+    return const Scaffold(
+      // appBar: const AppBar(
+      //   title: const Text('Hồ Sơ Học Tập Số'),
+      // ),
+      body: const Center(
+        child: const Text('Màn hình Hồ Sơ Học Tập Số'),
+      ),
+    );
+  }
+}
+
+
+
+ 
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Student Dashboard',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        primaryColor: Colors.blueAccent,
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.blue,
+          // primaryColorDark: Colors.blue.shade800,
+          accentColor: Colors.amber,
+          brightness: Brightness.light,
+        ),
+        fontFamily: 'Roboto',
+        useMaterial3: true,
+      ),
+      home: const StudentHomeScreen(),
+    );
+  }
+}
